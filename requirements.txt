@@ -202,8 +202,6 @@ python-slugify==5.0.2
 pytoolconfig==1.2.6
 pytz==2024.1
 pyuca==1.2
-pywin32==305.1
-pywin32-ctypes==0.2.2
 PyYAML==6.0.1
 pyzmq==26.2.0
 QDarkStyle==3.2.3
