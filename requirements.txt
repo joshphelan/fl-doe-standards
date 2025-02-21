@@ -49,8 +49,6 @@ distro==1.9.0
 docstring-to-markdown==0.11
 docutils==0.18.1
 executing==0.8.3
-faiss==1.9.0
-faiss-cpu==1.10.0
 fastapi==0.112.2
 fastjsonschema==2.16.2
 filelock==3.13.1
