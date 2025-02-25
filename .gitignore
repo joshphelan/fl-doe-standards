@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# IDE
+.vscode/
+
+# Testing and coverage
+.coverage
+coverage.xml
+.pytest_cache/
+
+# Project specific
+.env
+.streamlit/secrets.toml
+*.pkl
