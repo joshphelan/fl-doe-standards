@@ -15,6 +15,8 @@
 - Modified app.py to prioritize pickle file over Excel
 - Updated Excel processor to handle multi-row descriptions
 - Simplified OpenAI integration with improved error handling
+- Ensured consistent benchmark definitions by using exact text from data source
+- Enhanced benchmark pattern to support K12 format (e.g., MA.K12.MTR.1.1)
 
 ### Technical Details
 - Using feature branches for major changes
@@ -24,6 +26,7 @@
 - Added error handling for file access issues
 - Improved JSON parsing with better error handling
 - Enhanced logging for OpenAI API interactions
+- Used direct definition approach with low temperature for consistent results
 
 ### Next Steps
 1. Complete documentation updates

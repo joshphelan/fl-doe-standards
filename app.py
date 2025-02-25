@@ -59,41 +59,56 @@ def generate_openai_response(benchmark_data):
         # Use global client and model variables
         global client, model
         
+        # Pre-populate with exact definition
+        result = {
+            "benchmark_code": benchmark_data.id,
+            "definition": benchmark_data.definition,  # Use exact definition
+            "in_other_words": "",
+            "example": ""
+        }
+        
         system_prompt = (
-            "You are an expert assistant providing benchmark definitions of education standards. "
-            "Use the provided benchmark data to provide an accurate definition.\n\n"
-            "Your response should be structured in JSON format with the following keys:\n"
-            "- 'benchmark_code': The exact benchmark code being defined.\n"
-            "- 'definition': A word-for-word definition based on the benchmark data.\n"
-            "- 'in_other_words': A brief, casual explanation for better understanding.\n"
-            "- 'example': A simple example problem a teacher could use.\n\n"
+            "You are an expert assistant providing explanations of education standards. "
+            "The benchmark definition will be provided. Your task is to:\n\n"
+            "1. Provide a brief, casual explanation in the 'in_other_words' field\n"
+            "2. Create a simple example problem in the 'example' field\n\n"
+            "Return ONLY these two fields in JSON format:\n"
+            "- 'in_other_words': A brief, casual explanation for better understanding\n"
+            "- 'example': A simple example problem a teacher could use\n\n"
             "Ensure clarity, consistency, and correctness."
         )
-
+        
         # Log the model being used
-        logger.info(f"Using model: {model}")
+        logger.info(f"Using model: {model} with temperature 0.3")
         
         response = client.chat.completions.create(
             model=model,
+            temperature=0.3,  # Low but not zero
             messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"Define the following benchmark: {benchmark_data.id}"},
-                {"role": "assistant", "content": f"Relevant context:\n{benchmark_data.definition}"}
+                {"role": "user", "content": f"Benchmark: {benchmark_data.id}\nDefinition: {benchmark_data.definition}"}
             ]
         )
         
         ai_response_text = response.choices[0].message.content
         logger.info(f"Received response from OpenAI")
         
-        # Add error handling for JSON parsing
+        # Parse the AI response
         try:
             ai_response = json.loads(ai_response_text)
+            
+            # Only take the fields we want from OpenAI
+            if "in_other_words" in ai_response:
+                result["in_other_words"] = ai_response["in_other_words"]
+            if "example" in ai_response:
+                result["example"] = ai_response["example"]
+                
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse JSON response: {e}")
             logger.error(f"Response text: {ai_response_text[:100]}...")
-            return None, response.usage if hasattr(response, 'usage') else None
-        
-        return ai_response, response.usage
+            # Still return the definition even if OpenAI fails
+            
+        return result, response.usage
         
     except Exception as e:
         logger.error(f"Error generating OpenAI response: {e}")

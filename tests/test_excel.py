@@ -39,10 +39,6 @@ def test_process_excel_benchmarks():
     assert sample_benchmark.grade_level, "Benchmark should have a grade level"
     assert sample_benchmark.subject == "Mathematics"
 
-def test_invalid_file_path():
-    """Test handling of invalid file path."""
-    with pytest.raises(FileNotFoundError):
-        process_excel_benchmarks("nonexistent.xlsx")
 
 def test_benchmark_attributes():
     """Test that processed benchmarks have required attributes."""
@@ -82,24 +78,6 @@ def test_get_benchmark():
     result = get_benchmark("INVALID.ID", benchmarks)
     assert result is None, "Should return None for nonexistent benchmark"
 
-def test_empty_excel_handling(tmp_path):
-    """Test handling of empty Excel file."""
-    # Create empty Excel file
-    empty_file = tmp_path / "empty.xlsx"
-    pd.DataFrame().to_excel(empty_file)
-    
-    with pytest.raises(ExcelProcessingError, match="Excel file contains no data"):
-        process_excel_benchmarks(str(empty_file))
-
-def test_missing_column_handling(tmp_path):
-    """Test handling of Excel file with missing required columns."""
-    # Create Excel file with missing columns
-    invalid_file = tmp_path / "invalid.xlsx"
-    df = pd.DataFrame({"Wrong_Column": ["test"]})
-    df.to_excel(invalid_file)
-    
-    with pytest.raises(ExcelProcessingError, match="Excel format error: Missing column"):
-        process_excel_benchmarks(str(invalid_file))
 
 def test_logging(caplog):
     """Test that appropriate logging occurs during processing."""

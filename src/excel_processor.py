@@ -52,26 +52,56 @@ def process_excel_benchmarks(file_path: str) -> Dict[str, Benchmark]:
             raise FileNotFoundError(f"Excel file not found: {file_path}")
             
         logger.info(f"Reading Excel file: {file_path}")
-        df = pd.read_excel(excel_path)
+        # Skip the first two rows and use the third row as column names
+        df = pd.read_excel(excel_path, skiprows=2)
         
         # Initialize dictionary for benchmarks
         benchmarks: Dict[str, Benchmark] = {}
         
-        # Process each row
+        # Group rows by benchmark ID and combine descriptions
+        current_benchmark = None
+        current_description = []
+        current_grade = None
+        
         for idx, row in df.iterrows():
             try:
-                benchmark_id = row['Benchmark'].strip()
-                benchmarks[benchmark_id] = Benchmark(
-                    id=benchmark_id,
-                    definition=row['Description'],
-                    grade_level=row['Grade']
-                )
+                # Check if this row has a benchmark ID
+                benchmark_id = row['Benchmark#']
+                
+                # If this is a new benchmark and we have a previous one, save it
+                if pd.notna(benchmark_id) and current_benchmark is not None:
+                    # Save the previous benchmark
+                    benchmarks[current_benchmark] = Benchmark(
+                        id=current_benchmark,
+                        definition=' '.join(current_description).strip(),
+                        grade_level=current_grade or "Unknown"
+                    )
+                    # Reset for the new benchmark
+                    current_description = []
+                
+                # If this is a benchmark row, update the current benchmark
+                if pd.notna(benchmark_id):
+                    current_benchmark = benchmark_id.strip()
+                    current_grade = row['Grade'] if pd.notna(row['Grade']) else "Unknown"
+                
+                # Add description text if it exists
+                if pd.notna(row['Description']):
+                    current_description.append(str(row['Description']).strip())
+                    
             except KeyError as e:
                 logger.error(f"Missing required column in row {idx}: {e}")
                 raise ExcelProcessingError(f"Excel format error: Missing column {e}")
             except Exception as e:
                 logger.error(f"Error processing row {idx}: {e}")
                 continue
+        
+        # Save the last benchmark if there is one
+        if current_benchmark is not None and current_description:
+            benchmarks[current_benchmark] = Benchmark(
+                id=current_benchmark,
+                definition=' '.join(current_description).strip(),
+                grade_level=current_grade or "Unknown"
+            )
                 
         logger.info(f"Successfully processed {len(benchmarks)} benchmarks")
         return benchmarks

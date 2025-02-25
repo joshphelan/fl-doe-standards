@@ -15,7 +15,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-BENCHMARK_PATTERN = r'\b([A-Z]{2}\.(?:\d{1,3}|[A-Z])\.[A-Z]{1,3}\.\d+\.\d+)\b'
+BENCHMARK_PATTERN = r'\b([A-Z]{2}\.(?:\d{1,3}|K\d{1,2}|[A-Z])\.[A-Z]{1,3}\.\d+\.\d+)\b'
 FUZZY_MATCH_THRESHOLD = 80
 
 def normalize_benchmark_format(query: str) -> Optional[str]:
