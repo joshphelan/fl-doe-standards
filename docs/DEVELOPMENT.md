@@ -70,7 +70,7 @@ git status
 # Making Changes
 git add filename.py  # Stage specific files
 git add .           # Stage all changes
-git commit -m "Clear description of changes"
+git commit -m "Clear description of changes"  # Use semicolon (;) for chaining commands in PowerShell
 git push origin develop
 ```
 
@@ -78,16 +78,39 @@ git push origin develop
 ```bash
 # Create feature branch
 git checkout develop
-git checkout -b feature/excel-integration
+git checkout -b feature/name-of-feature
 
 # Push feature branch
-git push -u origin feature/excel-integration
+git push -u origin feature/name-of-feature
 
 # Merge to develop when complete
 git checkout develop
-git merge feature/excel-integration
+git merge feature/name-of-feature
 git push origin develop
 ```
+
+### Example: Repository Restructure
+1. Create feature branch
+   ```bash
+   git checkout -b feature/repo-restructure
+   ```
+2. Make and test changes:
+   - Move files to correct directories
+   - Update .gitignore
+   - Remove legacy files
+   - Test functionality
+3. Update documentation:
+   - Add changes to CHANGELOG.md
+   - Update process in DEVELOPMENT.md
+   - Review ROADMAP.md progress
+4. Create pull request to develop
+5. After review, merge to develop
+
+This example shows how to:
+- Isolate related changes in a feature branch
+- Test changes before affecting develop
+- Maintain clear documentation
+- Follow proper git workflow
 
 ### Updating Production
 ```bash
