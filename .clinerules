@@ -1,0 +1,24 @@
+# FL DOE Standards Guidelines
+
+## Security
+- Do not expose API keys or secrets
+- Keep credentials in .streamlit/secrets.toml
+- Do not read or modify any files containing sensitive information
+
+## Code Standards
+- Use type hints for better code maintainability
+- Add docstrings for functions
+- Include basic error handling
+- Keep functions focused and single-purpose
+- Log important operations and errors
+
+## Project Rules
+- Excel is the source of truth for benchmark definitions
+- Test critical functions
+- Update README.md with changes
+- Keep documentation simple and focused
+
+## Development Process
+- Work in develop branch for changes
+- Test locally before deploying
+- Keep commits focused and well-described
