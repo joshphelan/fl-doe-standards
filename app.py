@@ -7,7 +7,12 @@ import streamlit as st
 from openai import OpenAI
 import json
 import logging
-from src.excel_processor import process_excel_benchmarks, ExcelProcessingError
+from src.excel_processor import (
+    process_excel_benchmarks,
+    ExcelProcessingError,
+    load_benchmarks_pickle,
+    save_benchmarks_pickle
+)
 from src.utils import find_closest_benchmark, format_benchmark_response
 
 # Configure logging
@@ -25,11 +30,23 @@ MODEL_PRICING = {
 }
 
 def load_benchmarks():
-    """Load benchmarks from Excel file."""
+    """Load benchmarks from pickle file, falling back to Excel if needed."""
     try:
-        benchmarks = process_excel_benchmarks(EXCEL_PATH)
-        logger.info(f"Successfully loaded {len(benchmarks)} benchmarks")
-        return benchmarks
+        # Try loading from pickle first
+        try:
+            benchmarks = load_benchmarks_pickle()
+            logger.info(f"Successfully loaded {len(benchmarks)} benchmarks from pickle")
+            return benchmarks
+        except FileNotFoundError:
+            # Fallback to Excel processing
+            logger.warning("Pickle file not found, processing Excel file")
+            benchmarks = process_excel_benchmarks(EXCEL_PATH)
+            
+            # Save processed benchmarks for future use
+            save_benchmarks_pickle(benchmarks)
+            logger.info("Saved processed benchmarks to pickle file")
+            
+            return benchmarks
     except Exception as e:
         logger.error(f"Error loading benchmarks: {e}")
         st.error(f"Failed to load benchmarks: {str(e)}")
