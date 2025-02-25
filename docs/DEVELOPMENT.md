@@ -125,6 +125,34 @@ git merge develop
 git push origin main
 ```
 
+## Data Processing Workflow
+
+### Excel to Pickle Process
+1. **Initial Data Processing**
+   - Excel file is processed once using `process_excel_benchmarks()`
+   - Benchmark data is extracted and structured
+   - Results are serialized to pickle file using `save_benchmarks_pickle()`
+
+2. **Application Data Loading**
+   - App first attempts to load from pickle file using `load_benchmarks_pickle()`
+   - Only falls back to Excel processing if pickle file is missing
+   - This approach significantly improves startup performance
+
+3. **Updating Benchmark Data**
+   - When Excel source data changes:
+     ```bash
+     # Regenerate pickle file
+     python src/excel_processor.py
+     ```
+   - This updates the pickle file with the latest data
+   - No code changes required in app.py
+
+4. **Benefits**
+   - Faster application startup
+   - Reduced processing overhead
+   - Excel remains source of truth
+   - Simple update process
+
 ## Best Practices
 
 1. **Commit Messages**
@@ -142,3 +170,9 @@ git push origin main
    - Update documentation
    - Review changes
    - Check for sensitive data
+
+4. **Data Management**
+   - Keep Excel files in data/raw/
+   - Store processed data in data/processed/
+   - Use pickle for serialization of processed data
+   - Document data structure changes

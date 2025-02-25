@@ -11,7 +11,8 @@ from src.excel_processor import (
     process_excel_benchmarks,
     ExcelProcessingError,
     load_benchmarks_pickle,
-    save_benchmarks_pickle
+    save_benchmarks_pickle,
+    Benchmark
 )
 from src.utils import find_closest_benchmark, format_benchmark_response
 
@@ -52,9 +53,12 @@ def load_benchmarks():
         st.error(f"Failed to load benchmarks: {str(e)}")
         return None
 
-def generate_openai_response(benchmark_data, client):
+def generate_openai_response(benchmark_data):
     """Generate an AI-enhanced benchmark definition using OpenAI."""
     try:
+        # Use global client and model variables
+        global client, model
+        
         system_prompt = (
             "You are an expert assistant providing benchmark definitions of education standards. "
             "Use the provided benchmark data to provide an accurate definition.\n\n"
@@ -66,6 +70,9 @@ def generate_openai_response(benchmark_data, client):
             "Ensure clarity, consistency, and correctness."
         )
 
+        # Log the model being used
+        logger.info(f"Using model: {model}")
+        
         response = client.chat.completions.create(
             model=model,
             messages=[
@@ -76,7 +83,15 @@ def generate_openai_response(benchmark_data, client):
         )
         
         ai_response_text = response.choices[0].message.content
-        ai_response = json.loads(ai_response_text)
+        logger.info(f"Received response from OpenAI")
+        
+        # Add error handling for JSON parsing
+        try:
+            ai_response = json.loads(ai_response_text)
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse JSON response: {e}")
+            logger.error(f"Response text: {ai_response_text[:100]}...")
+            return None, response.usage if hasattr(response, 'usage') else None
         
         return ai_response, response.usage
         
@@ -123,7 +138,7 @@ if benchmarks:
 
             # Generate OpenAI response
             st.info("Generating AI-enhanced definition...")
-            ai_response, usage = generate_openai_response(benchmark_data, client)
+            ai_response, usage = generate_openai_response(benchmark_data)
 
             if ai_response:
                 # Display formatted response
