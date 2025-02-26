@@ -9,6 +9,7 @@ import logging
 import time
 import json
 import os
+import random
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple, Any
 from pathlib import Path
@@ -25,13 +26,13 @@ logger = logging.getLogger(__name__)
 class CPALMSScraper:
     """Class for scraping CPALMS resources and access points."""
     
-    def __init__(self, db_manager: DatabaseManager, delay: float = 1.0):
+    def __init__(self, db_manager: DatabaseManager, delay: float = 5.0):
         """
         Initialize CPALMS scraper.
         
         Args:
             db_manager: Database manager instance
-            delay: Delay between requests in seconds
+            delay: Delay between requests in seconds (default: 5.0)
         """
         self.db_manager = db_manager
         self.delay = delay
@@ -39,10 +40,65 @@ class CPALMSScraper:
         
         # Ensure directory exists
         os.makedirs(os.path.dirname(self.state_file), exist_ok=True)
+        
+        logger.info(f"Initialized CPALMS scraper with delay of {self.delay} seconds")
+    
+    def _make_request_with_retry(self, url: str, max_retries: int = 3, 
+                                base_delay: float = 5.0, max_delay: float = 60.0, 
+                                backoff_factor: float = 2.0) -> requests.Response:
+        """
+        Make HTTP request with exponential backoff retry logic.
+        
+        Args:
+            url: URL to request
+            max_retries: Maximum number of retry attempts
+            base_delay: Initial delay between retries in seconds
+            max_delay: Maximum delay between retries in seconds
+            backoff_factor: Multiplier for exponential backoff
+            
+        Returns:
+            Response object
+            
+        Raises:
+            Exception if all retries fail
+        """
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        retry_count = 0
+        retry_status_codes = [429, 500, 502, 503, 504]  # Rate limit and server errors
+        
+        while True:
+            try:
+                response = requests.get(url, headers=headers, timeout=30)
+                
+                # If we get a retry-able status code, raise an exception to trigger retry
+                if response.status_code in retry_status_codes:
+                    response.raise_for_status()  # This will raise an HTTPError
+                
+                # If we get here, the request was successful
+                return response
+                
+            except (requests.exceptions.RequestException) as e:
+                retry_count += 1
+                if retry_count > max_retries:
+                    logger.error(f"Max retries ({max_retries}) exceeded for {url}")
+                    raise
+                
+                # Calculate delay with exponential backoff
+                delay = min(max_delay, base_delay * (backoff_factor ** (retry_count - 1)))
+                # Add jitter (±10%)
+                jitter = random.uniform(-0.1, 0.1) * delay
+                delay += jitter
+                
+                logger.warning(f"Request failed: {e}. Retrying in {delay:.2f} seconds (attempt {retry_count}/{max_retries})")
+                time.sleep(delay)
     
     def scrape_benchmark(self, benchmark_id: str, cpalms_url: str) -> bool:
         """
         Scrape resources and access points for a benchmark.
+        Uses exponential backoff for retries on network errors.
         
         Args:
             benchmark_id: Benchmark ID
@@ -59,13 +115,9 @@ class CPALMSScraper:
                 datetime.now()
             )
             
-            # Fetch the page
+            # Fetch the page with retry logic
             logger.info(f"Fetching {cpalms_url} for benchmark {benchmark_id}")
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-            }
-            response = requests.get(cpalms_url, headers=headers, timeout=10)
-            response.raise_for_status()
+            response = self._make_request_with_retry(cpalms_url)
             
             # Parse HTML
             soup = BeautifulSoup(response.text, 'html.parser')
@@ -145,6 +197,10 @@ class CPALMSScraper:
                 # Skip if no URL or title
                 if not url or not title:
                     continue
+                
+                # Remove trailing colon from title if present
+                if title.endswith(':'):
+                    title = title[:-1]
                     
                 # Ensure URL is absolute
                 if not url.startswith('http'):
@@ -317,11 +373,20 @@ class CPALMSScraper:
             True if successful, False otherwise
         """
         try:
-            with open(self.state_file, 'w') as f:
-                json.dump({
-                    'last_processed': last_processed,
-                    'timestamp': datetime.now().isoformat()
-                }, f)
+            state_data = {
+                'last_processed': last_processed,
+                'timestamp': datetime.now().isoformat()
+            }
+            
+            # Create a temporary file first to ensure atomic write
+            temp_file = f"{self.state_file}.tmp"
+            with open(temp_file, 'w') as f:
+                json.dump(state_data, f, indent=2)
+            
+            # Rename the temp file to the actual state file (atomic operation)
+            os.replace(temp_file, self.state_file)
+            
+            logger.info(f"Saved scraper state: last processed benchmark = {last_processed}")
             return True
         except Exception as e:
             logger.error(f"Error saving scraper state: {e}")
@@ -338,7 +403,12 @@ class CPALMSScraper:
             if os.path.exists(self.state_file):
                 with open(self.state_file, 'r') as f:
                     state = json.load(f)
-                return state.get('last_processed')
+                last_processed = state.get('last_processed')
+                timestamp = state.get('timestamp', 'unknown')
+                logger.info(f"Loaded scraper state: last processed benchmark = {last_processed} (timestamp: {timestamp})")
+                return last_processed
+            
+            logger.info("No saved state found, starting from the beginning")
             return None
         except Exception as e:
             logger.error(f"Error loading scraper state: {e}")
@@ -361,25 +431,28 @@ class CPALMSScraper:
         # Get list of benchmarks to process
         benchmark_ids = list(benchmarks.keys())
         benchmark_ids.sort()  # Ensure consistent order
+        total_benchmarks = len(benchmark_ids)
         
         # If resuming, find the start index
+        start_idx = 0
         if start_from and start_from in benchmark_ids:
-            start_idx = benchmark_ids.index(start_from)
+            start_idx = benchmark_ids.index(start_from) + 1  # Start from the next benchmark
             benchmark_ids = benchmark_ids[start_idx:]
-            logger.info(f"Resuming from benchmark {start_from} ({len(benchmark_ids)} benchmarks remaining)")
+            logger.info(f"Resuming from benchmark {start_from} ({len(benchmark_ids)} benchmarks remaining out of {total_benchmarks})")
         else:
             logger.info(f"Starting fresh scrape of {len(benchmark_ids)} benchmarks")
         
         # Process benchmarks
-        for benchmark_id in benchmark_ids:
+        for i, benchmark_id in enumerate(benchmark_ids):
             benchmark = benchmarks[benchmark_id]
             cpalms_url = benchmark.get('cpalms_url', '')
             
             if not cpalms_url:
-                logger.warning(f"No CPALMS URL for benchmark {benchmark_id}")
+                logger.warning(f"No CPALMS URL for benchmark {benchmark_id}, skipping")
                 continue
                 
-            logger.info(f"Processing benchmark {benchmark_id} ({total_processed + 1}/{len(benchmark_ids)})")
+            current_position = start_idx + i + 1
+            logger.info(f"Processing benchmark {benchmark_id} ({current_position}/{total_benchmarks})")
             
             try:
                 # Scrape benchmark
@@ -390,12 +463,20 @@ class CPALMSScraper:
                     total_successful += 1
                     
                     # Save state for resumability
-                    self.save_state(benchmark_id)
+                    if not self.save_state(benchmark_id):
+                        logger.warning(f"Failed to save state after processing {benchmark_id}")
                 
                 # Delay between requests
-                time.sleep(self.delay)
+                delay_time = self.delay
+                # Add small jitter (±10%)
+                jitter = random.uniform(-0.1, 0.1) * delay_time
+                actual_delay = delay_time + jitter
+                logger.info(f"Waiting {actual_delay:.2f} seconds before next request")
+                time.sleep(actual_delay)
                 
             except Exception as e:
                 logger.error(f"Unexpected error processing benchmark {benchmark_id}: {e}")
+                # Try to save state even if there was an error
+                self.save_state(benchmark_id)
                 
         return total_processed, total_successful

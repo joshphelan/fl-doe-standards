@@ -1,5 +1,32 @@
 # Changelog
 
+## [Session 2024-02-26 - Part 3]
+
+### Fixed
+- Enhanced CPALMS scraper with exponential backoff for better reliability
+- Removed trailing colons from resource titles in the database
+- Improved resumability of the scraper with atomic state file updates
+- Added better logging for scraper state management
+
+### Changed
+- Increased default delay between requests from 1 second to 5 seconds
+- Implemented exponential backoff with jitter for failed requests
+- Extended request timeout from 10 seconds to 30 seconds
+- Enhanced state saving mechanism to be more robust
+
+### Technical Details
+- Added random jitter to delays to prevent synchronized retries
+- Implemented atomic file writes for scraper state using temporary files
+- Added retry logic for specific HTTP status codes (429, 500, 502, 503, 504)
+- Enhanced position tracking in the scraper to provide better progress information
+- Improved error handling with more detailed logging
+
+### Next Steps
+1. Run the improved scraper for all benchmarks
+2. Integrate the scraped resources into the main application
+3. Add UI elements to display resources and access points
+4. Update documentation with new features
+
 ## [Session 2024-02-26 - Part 2]
 
 ### Fixed

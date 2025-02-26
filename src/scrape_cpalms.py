@@ -14,6 +14,11 @@ from datetime import datetime
 from typing import Dict, List, Optional, Tuple, Any
 import pandas as pd
 
+# Add the project root to the Python path
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from src.db_manager import DatabaseManager
 from src.cpalms_scraper import CPALMSScraper
 from src.excel_processor import process_excel_benchmarks
@@ -93,7 +98,7 @@ def main():
     parser = argparse.ArgumentParser(description="Scrape CPALMS resources for benchmarks")
     parser.add_argument("--excel", default="data/raw/BEST Math Extract.xlsx", help="Path to Excel file")
     parser.add_argument("--db", default="data/processed/benchmarks.db", help="Path to SQLite database")
-    parser.add_argument("--delay", type=float, default=1.0, help="Delay between requests in seconds")
+    parser.add_argument("--delay", type=float, default=5.0, help="Delay between requests in seconds")
     parser.add_argument("--resume", action="store_true", help="Resume from last successful benchmark")
     parser.add_argument("--start-from", help="Resume from specific benchmark ID")
     parser.add_argument("--retry-failed", action="store_true", help="Retry previously failed benchmarks")
