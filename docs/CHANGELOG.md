@@ -1,6 +1,31 @@
 # Changelog
 
-## [Session 2024-02-26]
+## [Session 2024-02-26 - Part 2]
+
+### Fixed
+- Enhanced Excel processor to handle merged cells in the Excel file
+- Fixed URL extraction for benchmarks with multi-row definitions
+- Resolved issue with missing CPALMS URLs for certain benchmarks (e.g., MA.K12.MTR.*.*)
+- Improved hyperlink detection in Excel cells
+
+### Changed
+- Updated the benchmark URL extraction process to check all rows for each benchmark
+- Added better logging for URL extraction process
+- Implemented more robust cell hyperlink detection
+
+### Technical Details
+- Added support for detecting and handling merged cell ranges in Excel
+- Implemented a multi-pass approach for benchmark processing
+- Enhanced URL validation to ensure proper formatting
+- Improved error handling for Excel file access issues
+
+### Next Steps
+1. Run full scraping process for all benchmarks using scrape_cpalms.py
+2. Integrate scraped resources into the main application
+3. Add UI elements to display resources and access points
+4. Update documentation with new features
+
+## [Session 2024-02-26 - Part 1]
 
 ### Added
 - Implemented CPALMS scraper for extracting resources and access points
@@ -20,12 +45,6 @@
 - Added command-line arguments for test script configuration
 - Improved error handling and logging for scraper operations
 - Added cleanup functionality to test scripts
-
-### Next Steps
-1. Run Excel processor to regenerate pickle file with CPALMS URLs
-2. Run full scraping process for all benchmarks
-3. Integrate scraped resources into the main application
-4. Add UI elements to display resources and access points
 
 ## [Session 2024-02-25]
 
