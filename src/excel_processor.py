@@ -25,6 +25,7 @@ class Benchmark:
     definition: str
     grade_level: str
     subject: str = "Mathematics"
+    cpalms_url: str = ""
 
 class ExcelProcessingError(Exception):
     """Custom exception for Excel processing errors."""
@@ -71,10 +72,16 @@ def process_excel_benchmarks(file_path: str) -> Dict[str, Benchmark]:
                 # If this is a new benchmark and we have a previous one, save it
                 if pd.notna(benchmark_id) and current_benchmark is not None:
                     # Save the previous benchmark
+                    # Check if there's a CPALMS URL
+                    cpalms_url = ""
+                    if 'Direct Link' in row and pd.notna(row['Direct Link']):
+                        cpalms_url = str(row['Direct Link']).strip()
+                    
                     benchmarks[current_benchmark] = Benchmark(
                         id=current_benchmark,
                         definition=' '.join(current_description).strip(),
-                        grade_level=current_grade or "Unknown"
+                        grade_level=current_grade or "Unknown",
+                        cpalms_url=cpalms_url
                     )
                     # Reset for the new benchmark
                     current_description = []
@@ -97,10 +104,18 @@ def process_excel_benchmarks(file_path: str) -> Dict[str, Benchmark]:
         
         # Save the last benchmark if there is one
         if current_benchmark is not None and current_description:
+            # Use the last known CPALMS URL if any
+            cpalms_url = ""
+            if 'Direct Link' in df.columns:
+                last_url_row = df[df['Benchmark#'] == current_benchmark]['Direct Link'].dropna()
+                if not last_url_row.empty:
+                    cpalms_url = str(last_url_row.iloc[0]).strip()
+                    
             benchmarks[current_benchmark] = Benchmark(
                 id=current_benchmark,
                 definition=' '.join(current_description).strip(),
-                grade_level=current_grade or "Unknown"
+                grade_level=current_grade or "Unknown",
+                cpalms_url=cpalms_url
             )
                 
         logger.info(f"Successfully processed {len(benchmarks)} benchmarks")
