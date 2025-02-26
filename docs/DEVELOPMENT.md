@@ -153,6 +153,36 @@ git push origin main
    - Excel remains source of truth
    - Simple update process
 
+### CPALMS Scraping Process
+1. **Database Setup**
+   - SQLite database is used to store scraped data
+   - Database schema includes tables for benchmarks, resources, and access points
+   - `DatabaseManager` class handles all database operations
+
+2. **Scraping Resources and Access Points**
+   - `CPALMSScraper` class handles scraping of CPALMS website
+   - Resources (lesson plans, formative assessments) are extracted from benchmark pages
+   - Access points (alternative standards) are also extracted when available
+   - HTML parsing is done using BeautifulSoup with robust selector fallbacks
+
+3. **Running the Scraper**
+   - For testing a single benchmark:
+     ```bash
+     # Run the test script
+     python tests/test_cpalms_scraper_manual.py
+     ```
+   - For scraping all benchmarks:
+     ```bash
+     # Run the full scraper
+     python src/scrape_cpalms.py
+     ```
+   - The scraper supports resuming from interruptions and retrying failed benchmarks
+
+4. **Integrating with Application**
+   - Scraped resources and access points are stored in the database
+   - Application can query the database to display relevant resources for each benchmark
+   - This enhances the user experience by providing additional teaching resources
+
 ## Best Practices
 
 1. **Commit Messages**

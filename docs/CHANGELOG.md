@@ -1,5 +1,32 @@
 # Changelog
 
+## [Session 2024-02-26]
+
+### Added
+- Implemented CPALMS scraper for extracting resources and access points
+- Added database manager for storing scraped data
+- Created test script for CPALMS scraper
+- Added command-line script for batch scraping
+
+### Changed
+- Moved test_cpalms_scraper_manual.py to tests directory
+- Added cleanup function to remove test artifacts
+- Enhanced scraper to handle different HTML structures
+- Fixed access point ID formatting (removed trailing colons)
+
+### Technical Details
+- Used BeautifulSoup for HTML parsing
+- Implemented robust selector fallbacks for HTML structure changes
+- Added command-line arguments for test script configuration
+- Improved error handling and logging for scraper operations
+- Added cleanup functionality to test scripts
+
+### Next Steps
+1. Run Excel processor to regenerate pickle file with CPALMS URLs
+2. Run full scraping process for all benchmarks
+3. Integrate scraped resources into the main application
+4. Add UI elements to display resources and access points
+
 ## [Session 2024-02-25]
 
 ### Added
