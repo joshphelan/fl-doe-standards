@@ -12,6 +12,26 @@
 - Fixed URL extraction for problematic benchmarks (e.g., MA.5.NSO.1.3, MA.912.AR.1.9)
 - Improved handling of row indices in the Excel processor
 
+### Next Steps
+1. **Investigate new URL mapping issues**:
+   - Some benchmarks now have incorrect URLs after our changes
+   - For example, MA.K.AR.1.1 now incorrectly points to the URL for MA.K12.MTR.7.1 (https://www.cpalms.org/PreviewStandard/Preview/15881)
+   - Need to develop a more sophisticated solution that works for all benchmarks
+
+2. **Consider a more robust approach**:
+   - The URL extraction issue appears to be more complex than a simple row index adjustment
+   - Different benchmarks might require different handling based on their position or structure in the Excel file
+   - May need to implement benchmark-specific logic or a more adaptive algorithm
+
+3. **Develop and test a comprehensive solution**:
+   - Create a more detailed test suite that verifies URLs for a wider range of benchmarks
+   - Implement a solution that correctly handles all benchmark types
+   - Ensure no regressions are introduced for benchmarks that already have correct URLs
+
+4. **Run the CPALMS scraper**:
+   - Once all URL mapping issues are resolved, run the scraper to re-scrape resources
+   - Verify that the correct resources are being retrieved for each benchmark
+
 ## [Session 2024-02-26 - Part 3]
 
 ### Fixed
