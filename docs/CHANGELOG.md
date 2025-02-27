@@ -1,5 +1,17 @@
 # Changelog
 
+## [Session 2024-02-26 - Part 4]
+
+### Fixed
+- Fixed URL extraction in Excel processor by adjusting row index calculation
+- URLs are now correctly associated with their respective benchmarks
+- Resolved issues with benchmark URLs being off by one row
+
+### Technical Details
+- Adjusted row index calculation from +3 to +4 to account for Excel file structure
+- Fixed URL extraction for problematic benchmarks (e.g., MA.5.NSO.1.3, MA.912.AR.1.9)
+- Improved handling of row indices in the Excel processor
+
 ## [Session 2024-02-26 - Part 3]
 
 ### Fixed

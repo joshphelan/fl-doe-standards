@@ -1,0 +1,435 @@
+                              
+------------------------------
+1. BASIC COVERAGE AND COMPLETE
+NESS CHECKS                   
+                              
+------------------------------
+------------------------------
+----------                    
+total_benchmarks                benchmarks  successful  failed_scr  total_reso  total_acce
+------------------------------  ----------  ----------  ----------  ----------  ----------
+642                             642         642         0           5618        485       
+                              
+------------------------------
+1.2 Benchmarks without scrape 
+attempts:                     
+                              
+------------------------------
+1.3 Benchmarks with failed scr
+apes:                         
+                              
+------------------------------
+1.4 Scrape status distribution
+:                             
+status                          count       percentage
+------------------------------  ----------  ----------
+success                         642         100.0     
+                              
+------------------------------
+                              
+                              
+------------------------------
+2. RESOURCE DISTRIBUTION ANALY
+SIS                           
+                              
+------------------------------
+------------------------------
+--                            
+                              
+------------------------------
+2.1 Top 10 benchmarks by resou
+rce count:                    
+id                              resource_c  lesson_pla  assessment
+------------------------------  ----------  ----------  ----------
+MA.K.NSO.1.2                    54          41          13        
+MA.7.AR.3.2                     53          48          5         
+MA.5.NSO.1.1                    50          49          1         
+MA.912.DP.1.3                   49          49          0         
+MA.912.DP.1.2                   45          41          4         
+MA.6.DP.1.6                     43          41          2         
+MA.8.AR.3.3                     42          31          11        
+MA.912.DP.2.2                   42          35          7         
+MA.912.DP.2.5                   42          34          8         
+MA.3.NSO.2.3                    40          31          9         
+                              
+------------------------------
+2.1 Bottom 10 benchmarks by re
+source count (with resources):
+id                              resource_c  lesson_pla  assessment
+------------------------------  ----------  ----------  ----------
+MA.2.AR.2.2                     1           1           0         
+MA.2.NSO.2.1                    1           1           0         
+MA.3.AR.3.2                     1           1           0         
+MA.3.AR.3.3                     1           0           1         
+MA.3.NSO.1.2                    1           1           0         
+MA.5.AR.2.1                     1           1           0         
+MA.5.AR.3.2                     1           1           0         
+MA.6.AR.3.1                     1           0           1         
+MA.6.AR.3.4                     1           0           1         
+MA.6.NSO.3.5                    1           1           0         
+                              
+------------------------------
+2.2 Count of benchmarks with n
+o resources:                  
+benchmarks_without_resources  
+------------------------------
+149                           
+                              
+------------------------------
+2.3 Resource type distribution
+:                             
+resource_type                   count       percentage
+------------------------------  ----------  ----------
+Lesson Plan                     4260        75.83     
+Formative Assessment            1358        24.17     
+                              
+------------------------------
+2.4 Resource distribution by g
+rade level:                   
+grade_level                     benchmark_  resource_c  avg_resour
+------------------------------  ----------  ----------  ----------
+                                1           1           1.0       
+1                               26          324         12.46     
+2                               27          317         11.74     
+3                               34          497         14.62     
+4                               39          429         11.0      
+5                               36          434         12.06     
+6                               40          630         15.75     
+7                               34          488         14.35     
+8                               40          596         14.9      
+912                             336         1521        4.53      
+K                               22          366         16.64     
+K12                             7           15          2.14      
+                              
+------------------------------
+2.5 Access points distribution
+:                             
+benchmarks_with_access_points   total_acce  avg_access
+------------------------------  ----------  ----------
+452                             485         1.07      
+                              
+------------------------------
+                              
+                              
+------------------------------
+3. DATA QUALITY CHECKS        
+                              
+------------------------------
+---------------------         
+                              
+------------------------------
+3.1 NULL values in critical fi
+elds:                         
+null_ids                        null_defin  null_grade  null_cpalm
+------------------------------  ----------  ----------  ----------
+0                               1           1           0         
+                              
+------------------------------
+3.2 NULL values in resources: 
+null_benchmark_ids              null_title  null_urls   null_types
+------------------------------  ----------  ----------  ----------
+0                               0           0           0         
+                              
+------------------------------
+3.3 Duplicate resources (same 
+URL for same benchmark):      
+                              
+------------------------------
+3.4 Duplicate resources (same 
+title for same benchmark):    
+benchmark_id                    title       count     
+------------------------------  ----------  ----------
+MA.8.DP.1.2                     Why Correl  3         
+                                ations?               
+
+MA.8.DP.1.3                     Why Correl  3         
+                                ations?               
+
+MA.8.DP.2.1                     Why Correl  3         
+                                ations?               
+
+MA.8.GR.1.2                     Discoverin  3         
+                                g and Usin            
+                                g the Pyth            
+                                agorean Th            
+                                eorem                 
+
+MA.8.GR.1.3                     Discoverin  3         
+                                g and Usin            
+                                g the Pyth            
+                                agorean Th            
+                                eorem                 
+
+MA.912.DP.2.7                   Why Correl  3         
+                                ations?               
+
+MA.912.DP.2.8                   Why Correl  3         
+                                ations?               
+
+MA.1.GR.1.1                     Halves and  2         
+                                 Fourths:             
+
+MA.2.M.1.2                      If the Sho  2         
+                                e Fits...             
+
+MA.3.FR.2.2                     Comparing   2         
+                                Fractions             
+                              
+------------------------------
+3.5 Resources with identical U
+RLs but different titles:     
+id1                             id2         benchmark_  title       title       url       
+------------------------------  ----------  ----------  ----------  ----------  ----------
+4707                            4782        MA.912.GR.  Justifying  Justifying  https://ww
+                                            2.4          HL Congru   HL Congru  w.cpalms.o
+                                                        ence        ence        rg/Preview
+                                                                                ResourceAs
+                                                                                sessment/P
+                                                                                review/120
+                                                                                649       
+
+4575                            4631        MA.912.GR.  An Isoscel  An Isoscel  https://ww
+                                            1.4         es Trapezo  es Trapezo  w.cpalms.o
+                                                        id Problem  id Problem  rg/Preview
+                                                                                ResourceAs
+                                                                                sessment/P
+                                                                                review/123
+                                                                                108       
+
+29                              336         MA.1.AR.2.  Both Adden  Both Adden  https://ww
+                                            1           ds Unknown  ds Unknown  w.cpalms.o
+                                                        :                       rg/Preview
+                                                                                ResourceAs
+                                                                                sessment/P
+                                                                                review/398
+                                                                                18        
+
+1488                            1494        MA.4.NSO.1  Using Word  Using Word  https://ww
+                                            .3           and Expan   and Expan  w.cpalms.o
+                                                        ded Form    ded Form    rg/Preview
+                                                                                ResourceAs
+                                                                                sessment/P
+                                                                                review/561
+                                                                                31        
+
+1646                            1798        MA.5.DP.1.  Comic Book  Comic Book  https://ww
+                                            1           s           s           w.cpalms.o
+                                                                                rg/Preview
+                                                                                ResourceAs
+                                                                                sessment/P
+                                                                                review/562
+                                                                                62        
+
+4517                            4785        MA.912.GR.  Proving th  Proving th  https://ww
+                                            1.2         e Alternat  e Alternat  w.cpalms.o
+                                                        e Interior  e Interior  rg/Preview
+                                                         Angles Th   Angles Th  ResourceAs
+                                                        eorem       eorem       sessment/P
+                                                                                review/567
+                                                                                89        
+
+3205                            3273        MA.8.AR.3.  Interpreti  Interpreti  https://ww
+                                            3           ng Slope    ng Slope    w.cpalms.o
+                                                                                rg/Preview
+                                                                                ResourceAs
+                                                                                sessment/P
+                                                                                review/586
+                                                                                24        
+
+3205                            3295        MA.8.AR.3.  Interpreti  Interpreti  https://ww
+                                            3           ng Slope    ng Slope    w.cpalms.o
+                                                                                rg/Preview
+                                                                                ResourceAs
+                                                                                sessment/P
+                                                                                review/586
+                                                                                24        
+
+3273                            3295        MA.8.AR.3.  Interpreti  Interpreti  https://ww
+                                            5           ng Slope    ng Slope    w.cpalms.o
+                                                                                rg/Preview
+                                                                                ResourceAs
+                                                                                sessment/P
+                                                                                review/586
+                                                                                24        
+
+3204                            3294        MA.8.AR.3.  Proportion  Proportion  https://ww
+                                            3           al Paint    al Paint    w.cpalms.o
+                                                                                rg/Preview
+                                                                                ResourceAs
+                                                                                sessment/P
+                                                                                review/586
+                                                                                25        
+                              
+------------------------------
+3.6 Duplicate benchmark-access
+ point relationships:         
+                              
+------------------------------
+3.7 Benchmarks with successful
+ scrape but no resources:     
+benchmark_id                    status      resource_c
+------------------------------  ----------  ----------
+MA.2.M.1.1                      success     0         
+MA.4.FR.1.2                     success     0         
+MA.4.NSO.2.7                    success     0         
+MA.5.NSO.1.4                    success     0         
+MA.912.AR.1.5                   success     0         
+MA.912.AR.1.6                   success     0         
+MA.912.AR.1.7                   success     0         
+MA.912.AR.10.3                  success     0         
+MA.912.AR.10.4                  success     0         
+MA.912.AR.10.5                  success     0         
+                              
+------------------------------
+                              
+                              
+------------------------------
+4. STATISTICAL ANALYSIS       
+                              
+------------------------------
+----------------------        
+                              
+------------------------------
+4.1 Definition length statisti
+cs:                           
+min_length                      max_length  avg_length
+------------------------------  ----------  ----------
+0                               536         130.464174
+                                            454829    
+                              
+------------------------------
+4.2 Resource description lengt
+h statistics:                 
+resource_type                   count       min_desc_l  max_desc_l  avg_desc_l
+------------------------------  ----------  ----------  ----------  ----------
+Formative Assessment            1358        29          493         112.382916
+                                                                    053019    
+
+Lesson Plan                     4260        24          2078        391.452112
+                                                                    676056    
+                              
+------------------------------
+4.3 Grade level distribution: 
+grade_level                     benchmark_  percentage
+------------------------------  ----------  ----------
+                                1           0.16      
+1                               26          4.05      
+2                               27          4.21      
+3                               34          5.3       
+4                               39          6.07      
+5                               36          5.61      
+6                               40          6.23      
+7                               34          5.3       
+8                               40          6.23      
+912                             336         52.34     
+K                               22          3.43      
+K12                             7           1.09      
+                              
+------------------------------
+4.4 Resource count distributio
+n:                            
+resource_count                  benchmark_  percentage
+------------------------------  ----------  ----------
+0                               149         23.21     
+1                               70          10.9      
+2                               33          5.14      
+3                               28          4.36      
+4                               35          5.45      
+5                               16          2.49      
+6                               31          4.83      
+7                               20          3.12      
+8                               25          3.89      
+9                               20          3.12      
+10                              15          2.34      
+11                              18          2.8       
+12                              11          1.71      
+13                              10          1.56      
+14                              9           1.4       
+15                              15          2.34      
+16                              14          2.18      
+17                              9           1.4       
+18                              9           1.4       
+19                              8           1.25      
+20                              4           0.62      
+21                              9           1.4       
+22                              13          2.02      
+23                              8           1.25      
+24                              7           1.09      
+25                              5           0.78      
+26                              6           0.93      
+27                              3           0.47      
+28                              1           0.16      
+29                              1           0.16      
+30                              3           0.47      
+31                              5           0.78      
+32                              1           0.16      
+33                              3           0.47      
+34                              2           0.31      
+35                              4           0.62      
+36                              3           0.47      
+37                              1           0.16      
+38                              7           1.09      
+39                              1           0.16      
+40                              1           0.16      
+42                              3           0.47      
+43                              1           0.16      
+45                              1           0.16      
+49                              1           0.16      
+50                              1           0.16      
+53                              1           0.16      
+54                              1           0.16      
+                              
+------------------------------
+                              
+                              
+------------------------------
+5. REFERENTIAL INTEGRITY CHECK
+S                             
+                              
+------------------------------
+------------------------------
+                              
+------------------------------
+5.1 Resources referencing non-
+existent benchmarks:          
+                              
+------------------------------
+5.2 Access points referencing 
+non-existent benchmarks:      
+                              
+------------------------------
+5.3 Scrape status entries refe
+rencing non-existent benchmark
+s:                            
+                              
+------------------------------
+                              
+                              
+------------------------------
+6. VALIDATION SUMMARY         
+                              
+------------------------------
+--------------------          
+metric                          value     
+------------------------------  ----------
+Total benchmarks                642       
+
+Benchmarks with CPALMS URL      642       
+
+Successfully scraped benchmark  642       
+s                                         
+
+Failed scrape attempts          0         
+
+Total resources                 5618      
+
+Total access points             485       
+
+Benchmarks with no resources    149       
+
+Benchmarks with access points   452       
+
+Average resources per benchmar  8.75      
+k                                         
+
+Data integrity issues           0         
