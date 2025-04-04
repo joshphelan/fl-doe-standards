@@ -1,5 +1,33 @@
 # Changelog
 
+## [Session 2025-04-03]
+
+### Fixed
+- Completely redesigned URL extraction in Excel processor to handle merged cells correctly
+- Implemented benchmark ID mapping approach that decouples Excel row structure from DataFrame structure
+- Fixed all URL extraction issues, including problematic benchmarks in the last rows
+- Removed temporary files and cleanup repository
+
+### Technical Details
+- Created a new `extract_hyperlinks_from_excel` function that uses benchmark IDs as keys
+- Implemented a two-pass approach: first collect all hyperlinks, then apply them to the DataFrame
+- Added tracking of the last seen benchmark ID to handle merged cells properly
+- Processed all rows in the Excel file, not just a limited range
+- Added detailed logging for better troubleshooting
+
+### Next Steps
+1. **Run the CPALMS scraper**:
+   - Now that all URL mapping issues are resolved, run the scraper to re-scrape resources
+   - Verify that the correct resources are being retrieved for each benchmark
+
+2. **Update documentation**:
+   - Update ROADMAP.md to reflect completed tasks
+   - Consider adding more detailed documentation about the Excel processing approach
+
+3. **Enhance testing**:
+   - Add more comprehensive tests for the Excel processor
+   - Create tests that verify URL extraction for all benchmark types
+
 ## [Session 2024-02-26 - Part 4]
 
 ### Fixed

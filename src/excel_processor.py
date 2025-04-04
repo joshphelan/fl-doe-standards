@@ -33,49 +33,89 @@ class ExcelProcessingError(Exception):
     """Custom exception for Excel processing errors."""
     pass
 
-def get_cell_hyperlink(sheet, row, col) -> Optional[str]:
+def extract_hyperlinks_from_excel(sheet, header_row: int, df: pd.DataFrame) -> Dict[str, str]:
     """
-    Get the hyperlink URL from a specific cell, handling merged cells.
+    Extract hyperlinks from Excel worksheet using benchmark IDs as keys.
+    This approach completely decouples Excel row structure from DataFrame structure.
     
     Args:
         sheet: Excel worksheet
-        row: Row number (1-indexed)
-        col: Column number (1-indexed)
+        header_row: Row number (1-indexed) containing column headers
+        df: DataFrame containing benchmark data
         
     Returns:
-        Hyperlink URL or None if no hyperlink exists
+        Dictionary mapping benchmark IDs to their hyperlink URLs
     """
     try:
-        logger.debug(f"Checking for hyperlink in cell ({row}, {col})")
+        # Find the column indices for Benchmark ID and Direct Link
+        benchmark_col = None
+        link_col = None
         
-        # Check if the cell is part of a merged range
-        in_merged_range = False
-        for merged_range in sheet.merged_cells.ranges:
-            if row >= merged_range.min_row and row <= merged_range.max_row and \
-               col >= merged_range.min_col and col <= merged_range.max_col:
-                in_merged_range = True
-                # Use the top-left cell of the merged range
-                cell = sheet.cell(row=merged_range.min_row, column=merged_range.min_col)
-                logger.debug(f"Cell ({row}, {col}) is in merged range {merged_range}, using cell ({merged_range.min_row}, {merged_range.min_col})")
+        # Find the column indices
+        for col in range(1, sheet.max_column + 1):
+            cell_value = sheet.cell(row=header_row, column=col).value
+            if cell_value:
+                if 'Benchmark' in str(cell_value):
+                    benchmark_col = col
+                elif 'Direct Link' in str(cell_value):
+                    link_col = col
+        
+        if not benchmark_col or not link_col:
+            logger.warning(f"Could not find required columns. Benchmark col: {benchmark_col}, Link col: {link_col}")
+            return {}
+        
+        # Dictionary to store all hyperlinks keyed by benchmark ID
+        hyperlinks = {}
+        
+        # Dictionary to track the last seen benchmark ID for handling merged cells
+        last_benchmark_id = None
+        
+        # Process ALL rows in the Excel file
+        logger.info(f"Processing {sheet.max_row - header_row} rows in Excel file")
+        
+        # First pass: collect all benchmark IDs and their hyperlinks
+        for row_idx in range(header_row + 1, sheet.max_row + 1):
+            # Get the benchmark ID from this row
+            benchmark_cell = sheet.cell(row=row_idx, column=benchmark_col)
+            benchmark_id = benchmark_cell.value
+            
+            # If empty, use the last seen benchmark ID (for merged cells)
+            if not benchmark_id and last_benchmark_id:
+                benchmark_id = last_benchmark_id
+            elif benchmark_id:
+                # Update the last seen benchmark ID
+                last_benchmark_id = benchmark_id
                 
-                if hasattr(cell, 'hyperlink') and cell.hyperlink:
-                    return cell.hyperlink.target
-                else:
-                    logger.debug(f"No hyperlink found in merged cell ({merged_range.min_row}, {merged_range.min_col})")
-                    # Continue checking other merged ranges instead of returning None immediately
+            # Skip if we couldn't determine the benchmark ID
+            if not benchmark_id:
+                continue
+                
+            # Convert to string and clean up
+            benchmark_id = str(benchmark_id).strip()
+            
+            # Get the hyperlink from this row
+            link_cell = sheet.cell(row=row_idx, column=link_col)
+            
+            # If the cell has a hyperlink, store it
+            if hasattr(link_cell, 'hyperlink') and link_cell.hyperlink:
+                hyperlinks[benchmark_id] = link_cell.hyperlink.target
         
-        # If not in a merged range, check the cell directly
-        if not in_merged_range:
-            cell = sheet.cell(row=row, column=col)
-            if hasattr(cell, 'hyperlink') and cell.hyperlink:
-                return cell.hyperlink.target
-            else:
-                logger.debug(f"No hyperlink found in cell ({row}, {col})")
+        # Get all unique benchmark IDs in the DataFrame
+        df_benchmark_ids = set(df['Benchmark#'].dropna().astype(str).str.strip())
         
-        return None
+        # Check for benchmark IDs in DataFrame but not in hyperlinks
+        missing_in_hyperlinks = df_benchmark_ids - set(hyperlinks.keys())
+        if missing_in_hyperlinks:
+            logger.warning(f"Found {len(missing_in_hyperlinks)} benchmark IDs in DataFrame but not in hyperlinks")
+            if len(missing_in_hyperlinks) < 10:
+                logger.warning(f"Missing benchmark IDs: {', '.join(list(missing_in_hyperlinks))}")
+        
+        logger.info(f"Found {len(hyperlinks)} hyperlinks in Excel file")
+        return hyperlinks
+        
     except Exception as e:
-        logger.error(f"Error getting hyperlink from cell ({row}, {col}): {e}")
-        return None
+        logger.error(f"Error extracting hyperlinks from Excel: {e}")
+        return {}
 
 def is_valid_url(url: str) -> bool:
     """
@@ -142,61 +182,8 @@ def process_excel_benchmarks(file_path: str) -> Dict[str, Benchmark]:
         # Initialize dictionary for benchmarks
         benchmarks: Dict[str, Benchmark] = {}
         
-        # Create a mapping of benchmark IDs to all their related rows
-        benchmark_rows = {}
-        current_benchmark = None
-        
-        # First pass: collect all rows for each benchmark ID, including rows without benchmark ID
-        for idx, row in df.iterrows():
-            try:
-                benchmark_id = row['Benchmark#']
-                
-                if pd.notna(benchmark_id):
-                    # New benchmark found
-                    current_benchmark = str(benchmark_id).strip()
-                    if current_benchmark not in benchmark_rows:
-                        benchmark_rows[current_benchmark] = []
-                    benchmark_rows[current_benchmark].append(idx)
-                elif current_benchmark is not None:
-                    # This row belongs to the current benchmark
-                    benchmark_rows[current_benchmark].append(idx)
-            except Exception as e:
-                logger.error(f"Error collecting rows for benchmark at row {idx}: {e}")
-        
-        logger.info(f"Found {len(benchmark_rows)} unique benchmarks")
-        
-        # Create a mapping of benchmark IDs to their URLs
-        benchmark_urls = {}
-        
-        # Second pass: find URLs for each benchmark by checking all its rows
-        for benchmark_id, row_indices in benchmark_rows.items():
-            try:
-                # Get the primary row for this benchmark (the row with the benchmark ID)
-                primary_idx = row_indices[0]  # The first row is where the benchmark ID appears
-                primary_excel_row = primary_idx + 4  # +4 for header rows
-                
-                # Get URL from the primary row first
-                primary_url = get_cell_hyperlink(sheet, primary_excel_row, direct_link_col)
-                
-                if primary_url and is_valid_url(primary_url):
-                    benchmark_urls[benchmark_id] = primary_url
-                else:
-                    # If no URL in primary row, check other rows
-                    for idx in row_indices[1:]:
-                        excel_row = idx + 4
-                        
-                        # Get hyperlink directly from the cell, handling merged cells
-                        url = get_cell_hyperlink(sheet, excel_row, direct_link_col)
-                        
-                        if url and is_valid_url(url):
-                            benchmark_urls[benchmark_id] = url
-                            break
-                
-                # If no valid URL was found after checking all rows
-                if benchmark_id not in benchmark_urls:
-                    logger.warning(f"No valid URL found for benchmark {benchmark_id} after checking {len(row_indices)} rows")
-            except Exception as e:
-                logger.error(f"Error processing URL for benchmark {benchmark_id}: {e}")
+        # Create a mapping of benchmark IDs to their URLs using the improved approach
+        benchmark_urls = extract_hyperlinks_from_excel(sheet, header_row=3, df=df)
         
         # Third pass: process benchmarks and use the collected URLs
         current_benchmark = None
